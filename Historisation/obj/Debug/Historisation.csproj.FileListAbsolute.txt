@@ -44,3 +44,10 @@ c:\users\trebhi\documents\visual studio 2015\Projects\Historisation\Historisatio
 c:\users\trebhi\documents\visual studio 2015\Projects\Historisation\Historisation\obj\Debug\Historisation.dll
 c:\users\trebhi\documents\visual studio 2015\Projects\Historisation\Historisation\obj\Debug\Historisation.pdb
 C:\Users\trebhi\documents\visual studio 2015\Projects\Historisation\Historisation\obj\Debug\Historisation.csprojResolveAssemblyReference.cache
+C:\Users\trebhi\Documents\Visual Studio 2015\Projects\Historisation\Historisation\bin\Antlr3.Runtime.dll
+C:\Users\trebhi\Documents\Visual Studio 2015\Projects\Historisation\Historisation\bin\Newtonsoft.Json.dll
+C:\Users\trebhi\Documents\Visual Studio 2015\Projects\Historisation\Historisation\bin\System.Web.Optimization.dll
+C:\Users\trebhi\Documents\Visual Studio 2015\Projects\Historisation\Historisation\bin\WebGrease.dll
+C:\Users\trebhi\Documents\Visual Studio 2015\Projects\Historisation\Historisation\bin\Antlr3.Runtime.pdb
+C:\Users\trebhi\Documents\Visual Studio 2015\Projects\Historisation\Historisation\bin\Newtonsoft.Json.xml
+C:\Users\trebhi\Documents\Visual Studio 2015\Projects\Historisation\Historisation\bin\System.Web.Optimization.xml

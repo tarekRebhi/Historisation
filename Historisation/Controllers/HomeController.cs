@@ -1,11 +1,8 @@
 ﻿using Historisation.Models;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Web;
 using System.Web.Mvc;
 using System.DirectoryServices;
-
+using System.Text;
 
 namespace Historisation.Controllers
 {
@@ -25,23 +22,55 @@ namespace Historisation.Controllers
             string password = person.password;
             try
             {
-                
+                // Connexion à l'annuaire
                 DirectoryEntry Ldap = new DirectoryEntry("LDAP://info.local", person.login, person.password);
+                // Nouvel objet pour instancier la recherche
                 DirectorySearcher searcher = new DirectorySearcher(Ldap);
-                searcher.Filter = "(cn=Tarek)";
+                // On modifie le filtre pour ne chercher que l'user 
+                searcher.Filter = "(&(objectClass=user)(sAMAccountName=" + person.login + "))";
+                // Pas de boucle foreach car on ne cherche qu'un user
                 SearchResult result = searcher.FindOne();
+                // On récupère l'objet trouvé lors de la recherche
                 DirectoryEntry DirEntry = result.GetDirectoryEntry();
-                ViewBag.value = DirEntry.Properties["pass"].Value;
-                ViewBag.Login = "Compte existant !";
+                ViewBag.value = DirEntry.Properties["mail"].Value;
+                //ViewBag.message = "Compte existant !";
 
+                /*searcher.Filter = String.Format("(cn={0})", person.login);
+                searcher.PropertiesToLoad.Add("memberOf");*/
+                StringBuilder groupsList = new StringBuilder();
+                string[] msg;
+                string[] msg2;
+
+
+                if (result != null)
+                {
+                    int groupCount = result.Properties["memberOf"].Count;
+
+                    for (int counter = 0; counter < groupCount; counter++)
+                    {
+                        groupsList.Append(DirEntry.Properties["memberOf"][counter]);
+                        groupsList.Append("|");
+                        msg = groupsList.ToString().Split('|');
+                        msg2 = msg[counter].Split(',');
+                        //ViewBag.msg += msg[counter];
+                        ViewBag.msg2 +=msg2[0]+" " +" | ";
+
+                    }
+                }
+                //groupsList.Length -= 1; //remove the last '|' symbol
+                //ViewBag.gr=groupsList.ToString();
+                
+                
+                
+                
             }
-
+            
 
 
             catch (Exception Ex)
             {
                 Console.WriteLine(Ex.Message);
-                ViewBag.Login = Ex;
+                ViewBag.message = Ex;
 
 
             }

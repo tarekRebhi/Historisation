@@ -9,11 +9,35 @@
 <head>
     <meta name="viewport" content="width=device-width" />
     <title>test</title>
+    <style>
+        body {
+            background-image: url("../../back.jpg");
+        }
+    </style>
 </head>
 <body>
     <div> 
-        @ViewBag.login<br/><br/>
-        @ViewBag.value
-    </div>
+        <div class="jubmbotron"><h1>Historisation</h1></div>
+        <div class="container">
+            @ViewBag.message<!----<br /><br />!-->
+            @ViewBag.gr<!----<br /><br />!-->
+            @ViewBag.value<br /><br />
+            @ViewBag.msg<!----<br /><br />!-->
+            @ViewBag.msg2<br />
+
+
+            <!--<input type="button" id="myBtn" value="Historiser" />!-->
+            <p id="demo"></p>
+        </div>
+        </div>
+
+    <!--<script>
+
+    document.getElementById("myBtn").addEventListener("click", displayDate);
+
+    function displayDate() {
+        document.getElementById("demo").innerHTML = Date();
+    }
+    </script>-->
 </body>
 </html>
