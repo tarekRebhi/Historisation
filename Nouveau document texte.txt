@@ -1,0 +1,541 @@
+
+//Controlleur
+
+
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Web;
+using System.Web.Mvc;
+using Histo.Models;
+using System.DirectoryServices;
+using System.Text;
+
+namespace Histo.Controllers
+{
+    public class ConnectionController : Controller
+    {
+        // GET: Connection
+        [HttpPost]
+        public ActionResult Redirection(Employe employe)
+        {
+
+            string login = employe.login;
+            string password = employe.password;
+            string[] msg2 = new string[20];
+
+            if (password == null)
+            {
+                ViewBag.message = ("login ou mot de passe incorrect !!");
+                return View("~/Views/Acceuil/Acceuil.cshtml");
+            }
+            else
+            {
+                try
+                {
+
+                    DirectoryEntry Ldap = new DirectoryEntry("LDAP://info.local", login, password);
+
+                    DirectorySearcher searcher = new DirectorySearcher(Ldap);
+
+                    searcher.Filter = "(&(objectClass=user)(sAMAccountName=" + employe.login + "))";
+
+                    SearchResult result = searcher.FindOne();
+
+                    DirectoryEntry DirEntry = result.GetDirectoryEntry();
+                    ViewBag.value = DirEntry.Properties["mail"].Value;
+
+                    StringBuilder groupsList = new StringBuilder();
+                    string[] msg;
+
+
+                    if (result != null)
+                    {
+                        int groupCount = result.Properties["memberOf"].Count;
+
+                        for (int counter = 0; counter < groupCount; counter++)
+                        {
+                            groupsList.Append(DirEntry.Properties["memberOf"][counter]);
+                            groupsList.Append("|");
+                            msg = groupsList.ToString().Split('|');
+                            msg2 = msg[counter].Split(',');
+                            ViewBag.msg += msg[counter];
+                            ViewBag.msg2 += msg2[0] + " " + " | ";
+
+                        }
+                    }
+                    //groupsList.Length -= 1; //remove the last '|' symbol
+                    //ViewBag.gr=groupsList.ToString();
+
+
+
+
+                }
+
+
+                catch (Exception Ex)
+                {
+
+                    ViewBag.message = ("login ou mot de passe incorrect !!");
+                    return View("~/Views/Acceuil/Acceuil.cshtml");
+
+                }
+            }
+
+
+
+            for (int i = 0; i < msg2.Length; i++)
+            {
+                if (msg2[i] == "CN=ACC-PROD-TUNIS-WEB_CONTENU-AGENT")
+                {
+                    return View("~/Views/Historisation_CONT_AL.cshtml");
+                }
+                else if (msg2[i] == "CN=ACC-PROD-TUNIS-EXPO_CTN-AGENT")
+                {
+                    return View("~/Views/Historisation_CONT_Af.cshtml");
+                }
+                else if (msg2[i] == "CN=ACC-PROD-TUNIS-Bedouk_CTN-AGENT")
+                {
+                    return View("~/Views/Historisation_CONT_HG.cshtml");
+                }
+            }
+            List<SelectListItem> li = new List<SelectListItem>();
+            li.Add(new SelectListItem { Text = "Select", Value = "0" });
+            li.Add(new SelectListItem { Text = "IPD", Value = "1" });
+            li.Add(new SelectListItem { Text = "WEB_AUTO", Value = "2" });
+            li.Add(new SelectListItem { Text = "TLF", Value = "3" });
+            
+
+            ViewData["pole"] = li;
+            return View("~/Views/test.cshtml");
+
+      }
+
+        public JsonResult GetSite(string id)
+        {
+            List<SelectListItem> site = new List<SelectListItem>();
+            switch (id)
+            {
+                case "1":
+                    site.Add(new SelectListItem { Text = "Select", Value = "0" });
+                    site.Add(new SelectListItem { Text = "LSA", Value = "1" });
+                    site.Add(new SelectListItem { Text = "ARG", Value = "2" });
+                    site.Add(new SelectListItem { Text = "ECH", Value = "3" });
+                    site.Add(new SelectListItem { Text = "UD", Value = "4" });
+                    site.Add(new SelectListItem { Text = "ECHO T", Value = "5" });
+                    site.Add(new SelectListItem { Text = "ADS", Value = "6" });
+                    site.Add(new SelectListItem { Text = "AME", Value = "7" });
+                                        
+                    break;
+                case "2":
+                    site.Add(new SelectListItem { Text = "Select", Value = "8" });
+                    site.Add(new SelectListItem { Text = "RTA", Value = "9" });
+                    break;
+                case "3":
+                    site.Add(new SelectListItem { Text = "Select", Value = "10" });
+                    site.Add(new SelectListItem { Text = "TLF", Value = "11" });
+
+                    break;
+            }
+            return Json(new SelectList(site, "Value", "Text"));
+        }
+        public JsonResult GetMission(string id)
+        {
+            List<SelectListItem> mission = new List<SelectListItem>();
+            switch (id)
+            {
+                case "1":
+                    mission.Add(new SelectListItem { Text = "Select", Value = "0" });
+                    mission.Add(new SelectListItem { Text = "CREATION", Value = "1" });
+                    mission.Add(new SelectListItem { Text = "MAJ", Value = "2" });
+                    mission.Add(new SelectListItem { Text = "REECRITURES", Value = "3" });
+                    mission.Add(new SelectListItem { Text = "GESTION_DE_CONTENU_WEB", Value = "4" });
+                    mission.Add(new SelectListItem { Text = "PROJETS EDITORIAUX(CONTENU)", Value = "5" });
+
+                    break;
+                case "2":
+                    mission.Add(new SelectListItem { Text = "Select", Value = "6" });
+                    mission.Add(new SelectListItem { Text = "CREATION", Value = "7" });
+                    mission.Add(new SelectListItem { Text = "MAJ", Value = "8" });
+                    mission.Add(new SelectListItem { Text = "REECRITURES", Value = "9" });
+                    mission.Add(new SelectListItem { Text = "PROJETS EDITORIAUX(CONTENU)", Value = "10" });
+
+                    break;
+                case "3":
+                    mission.Add(new SelectListItem { Text = "Select", Value = "11" });
+                    mission.Add(new SelectListItem { Text = "CREATION", Value = "12" });
+                    mission.Add(new SelectListItem { Text = "MAJ", Value = "13" });
+
+                    break;
+                case "4":
+                    mission.Add(new SelectListItem { Text = "Select", Value = "14" });
+                    mission.Add(new SelectListItem { Text = "CRATION", Value = "15" });
+                    mission.Add(new SelectListItem { Text = "MAJ", Value = "16" });
+                    mission.Add(new SelectListItem { Text = "REECRITURES", Value = "17" });
+                    mission.Add(new SelectListItem { Text = "PROJETS EDITORIAUX(CONTENU)", Value = "18" });
+
+                    break;
+                case "5":
+                    mission.Add(new SelectListItem { Text = "Select", Value = "19" });
+                    mission.Add(new SelectListItem { Text = "REECRITURES", Value = "20" });
+                    mission.Add(new SelectListItem { Text = "PROJETS EDITORIAUX(CONTENU)", Value = "21" });
+
+                    break;
+                case "6":
+                    mission.Add(new SelectListItem { Text = "Select", Value = "22" });
+                    mission.Add(new SelectListItem { Text = "GESTION_DE_CONTENU_WEB", Value = "23" });
+                    mission.Add(new SelectListItem { Text = "PROJETS EDITORIAUX(CONTENU)", Value = "24" });
+
+                    break;
+                case "7":
+                    mission.Add(new SelectListItem { Text = "Select", Value = "25" });
+                    mission.Add(new SelectListItem { Text = "GESTION_DE_CONTENU_WEB", Value = "26" });
+                    mission.Add(new SelectListItem { Text = "PROJETS EDITORIAUX(CONTENU)", Value = "27" });
+
+                    break;
+                case "9":
+                    mission.Add(new SelectListItem { Text = "Select", Value = "28" });
+                    mission.Add(new SelectListItem { Text = "CRATION", Value = "29" });
+                    mission.Add(new SelectListItem { Text = "MAJ", Value = "30" });
+                    mission.Add(new SelectListItem { Text = "REECRITURES", Value = "31" });
+                    mission.Add(new SelectListItem { Text = "GESTION_DE_CONTENU_WEB", Value = "32" });
+                    mission.Add(new SelectListItem { Text = "CM", Value = "33" });
+                    mission.Add(new SelectListItem { Text = "PROJETS EDITORIAUX(CONTENU)", Value = "34" });
+
+                    break;
+                case "11":
+                    mission.Add(new SelectListItem { Text = "Select", Value = "35" });
+                    mission.Add(new SelectListItem { Text = "CRATION", Value = "36" });
+                    mission.Add(new SelectListItem { Text = "MAJ", Value = "37" });
+                    mission.Add(new SelectListItem { Text = "REECRITURES", Value = "38" });
+                    mission.Add(new SelectListItem { Text = "PROJETS EDITORIAUX(CONTENU)", Value = "39" });
+                    break;
+
+            }
+
+            return Json(new SelectList(mission, "Value", "Text"));
+        }
+
+        public JsonResult GetTache(string id)
+        {
+            List<SelectListItem> tache = new List<SelectListItem>();
+            switch (id)
+            {
+                case "1":
+                    tache.Add(new SelectListItem { Text = "Select", Value = "0" });
+                    tache.Add(new SelectListItem { Text = "CDD_LSA", Value = "1" });
+                    tache.Add(new SelectListItem { Text = "LSA_INNO", Value = "2" });
+
+                    break;
+                case "2":
+                    tache.Add(new SelectListItem { Text = "Select", Value = "0" });
+                    tache.Add(new SelectListItem { Text = "CDD_LSA", Value = "1" });
+                    tache.Add(new SelectListItem { Text = "LSA_INNO", Value = "2" });
+                    break;
+                case "3":
+                    tache.Add(new SelectListItem { Text = "Select", Value = "0" });
+                    tache.Add(new SelectListItem { Text = "REEC_LSA", Value = "1" });
+                    tache.Add(new SelectListItem { Text = "REEC_LSA_INNO", Value = "2" });
+                    break;
+                case "4":
+                    tache.Add(new SelectListItem { Text = "Select", Value = "0" });
+                    tache.Add(new SelectListItem { Text = "MEF_LSA_", Value = "1" });
+                    break;
+                case "5":
+                    tache.Add(new SelectListItem { Text = "Select", Value = "0" });
+                    tache.Add(new SelectListItem { Text = "________", Value = "1" });
+                    break;
+                case "7":
+                    tache.Add(new SelectListItem { Text = "Select", Value = "0" });
+                    tache.Add(new SelectListItem { Text = "CDDARG", Value = "1" });
+                    break;
+                case "8":
+                    tache.Add(new SelectListItem { Text = "Select", Value = "0" });
+                    tache.Add(new SelectListItem { Text = "MAJ_CDD_ARG", Value = "1" });
+                    break;
+                case "9":
+                    tache.Add(new SelectListItem { Text = "Select", Value = "0" });
+                    tache.Add(new SelectListItem { Text = "REEC_CDD_ARG", Value = "1" });
+                    break;
+                case "10":
+                    tache.Add(new SelectListItem { Text = "Select", Value = "0" });
+                    tache.Add(new SelectListItem { Text = "________", Value = "1" });
+                    break;
+                case "12":
+                    tache.Add(new SelectListItem { Text = "Select", Value = "0" });
+                    tache.Add(new SelectListItem { Text = "CDD_ECHO_T", Value = "1" });
+                    break;
+                case "13":
+                    tache.Add(new SelectListItem { Text = "Select", Value = "0" });
+                    tache.Add(new SelectListItem { Text = "MAJ_ECHO_T", Value = "1" });
+                    break;
+                case "15":
+                    tache.Add(new SelectListItem { Text = "Select", Value = "0" });
+                    tache.Add(new SelectListItem { Text = "START_UP_UD", Value = "1" });
+                    break;
+                case "16":
+                    tache.Add(new SelectListItem { Text = "Select", Value = "0" });
+                    tache.Add(new SelectListItem { Text = "MAJ_START_UP_MAJ", Value = "1" });
+                    break;
+                case "17":
+                    tache.Add(new SelectListItem { Text = "Select", Value = "0" });
+                    tache.Add(new SelectListItem { Text = "REEC_START_UP_UD", Value = "1" });
+                    break;
+                case "18":
+                    tache.Add(new SelectListItem { Text = "Select", Value = "0" });
+                    tache.Add(new SelectListItem { Text = "________", Value = "1" });
+                    break;
+                case "20":
+                    tache.Add(new SelectListItem { Text = "Select", Value = "0" });
+                    tache.Add(new SelectListItem { Text = "REEC_CDD__ECHO_T", Value = "1" });
+                    break;
+                case "21":
+                    tache.Add(new SelectListItem { Text = "Select", Value = "0" });
+                    tache.Add(new SelectListItem { Text = "__________", Value = "1" });
+                    break;
+                case "23":
+                    tache.Add(new SelectListItem { Text = "Select", Value = "0" });
+                    tache.Add(new SelectListItem { Text = "MEF_ADS", Value = "1" });
+                    break;
+                case "24":
+                    tache.Add(new SelectListItem { Text = "Select", Value = "0" });
+                    tache.Add(new SelectListItem { Text = "__________", Value = "1" });
+                    break;
+                case "26":
+                    tache.Add(new SelectListItem { Text = "Select", Value = "0" });
+                    tache.Add(new SelectListItem { Text = "MEF_AME", Value = "1" });
+                    break;
+                case "27":
+                    tache.Add(new SelectListItem { Text = "Select", Value = "0" });
+                    tache.Add(new SelectListItem { Text = "________", Value = "1" });
+                    break;
+                case "29":
+                    tache.Add(new SelectListItem { Text = "Select", Value = "0" });
+                    tache.Add(new SelectListItem { Text = "DESC_RTA", Value = "1" });
+                    tache.Add(new SelectListItem { Text = "GAMMES_RTA", Value = "2" });
+                    break;
+                case "30":
+                    tache.Add(new SelectListItem { Text = "Select", Value = "0" });
+                    tache.Add(new SelectListItem { Text = "MAJ_DESC__RTA", Value = "1" });
+                    tache.Add(new SelectListItem { Text = "MAJ_GAMMES_RTA", Value = "2" });
+                    break;
+                case "31":
+                    tache.Add(new SelectListItem { Text = "Select", Value = "0" });
+                    tache.Add(new SelectListItem { Text = "REEC_DESC_RTA", Value = "1" });
+                    tache.Add(new SelectListItem { Text = "REEC_GAMMES_RTA", Value = "2" });
+                    break;
+                case "32":
+                    tache.Add(new SelectListItem { Text = "Select", Value = "0" });
+                    tache.Add(new SelectListItem { Text = "MEF_RTA", Value = "1" });
+                    break;
+                case "33":
+                    tache.Add(new SelectListItem { Text = "Select", Value = "0" });
+                    tache.Add(new SelectListItem { Text = "PARTENARIATS", Value = "1" });
+                    tache.Add(new SelectListItem { Text = "CM_FB", Value = "2" });
+                    tache.Add(new SelectListItem { Text = "PIRATES", Value = "3" });
+                    tache.Add(new SelectListItem { Text = "E_REPUTATION", Value = "4" });
+                    tache.Add(new SelectListItem { Text = "NETLINKING", Value = "5" });
+                    break;
+                case "34":
+                    tache.Add(new SelectListItem { Text = "Select", Value = "0" });
+                    tache.Add(new SelectListItem { Text = "________", Value = "1" });
+                    break;
+                case "36":
+                    tache.Add(new SelectListItem { Text = "Select", Value = "0" });
+                    tache.Add(new SelectListItem { Text = "NEWS_TLF", Value = "1" }); 
+                    tache.Add(new SelectListItem { Text = "CONCEPT_TLF", Value = "2" });
+                    break;
+                case "37":
+                    tache.Add(new SelectListItem { Text = "Select", Value = "0" });
+                    tache.Add(new SelectListItem { Text = "MAJ_NEWS_TLF", Value = "1" });
+                    tache.Add(new SelectListItem { Text = "MAJ_CONCEPT_TLF", Value = "2" });
+
+                    break;
+                case "38":
+                    tache.Add(new SelectListItem { Text = "Select", Value = "0" });
+                    tache.Add(new SelectListItem { Text = "REEC_NEWS_TLF", Value = "1" });
+                    tache.Add(new SelectListItem { Text = "REEC_CONCEPT_TLF", Value = "2" });
+                    break;
+                case "39":
+                    tache.Add(new SelectListItem { Text = "Select", Value = "0" });
+                    tache.Add(new SelectListItem { Text = "________", Value = "1" });
+                    break;
+              
+            }
+            return Json(new SelectList(tache, "Value", "Text"));
+        }
+
+
+        [HttpPost]
+        public ActionResult CustomerFeedback(FormCollection FC)
+        {
+
+            string pole = FC["pole"].ToString();
+            string site = FC["site"].ToString();
+            string mission = FC["mission"].ToString();
+
+            #region Rebinding after posting
+
+            List<SelectListItem> li = new List<SelectListItem>();
+            li.Add(new SelectListItem { Text = "Select", Value = "0" });
+            li.Add(new SelectListItem { Text = "IPD", Value = "1" });
+            li.Add(new SelectListItem { Text = "WEB_AUTO", Value = "2" });
+            li.Add(new SelectListItem { Text = "TLF", Value = "3" });
+
+            ViewData["pole"] = li;
+            #endregion
+
+            return View("~/Views/test.cshtml");
+        }
+
+
+    }
+}
+
+
+
+VUE
+
+@model Histo.Models.Historisation
+
+<html>
+<body>
+
+    <div class="container">
+
+       @using (Html.BeginForm())
+       {
+
+            <div class="editor-label">
+                <br />
+                <div style="color: Purple;">
+                    @Html.Label("Select Pole")
+                </div>
+                <div class="editor-field">
+                    @if (ViewData.ContainsKey("pole"))
+                    {
+                        @Html.DropDownList("pole", ViewData["pole"] as List<SelectListItem>, new { style = "width:250px", @class = "dropdown1" })
+                    }
+                </div>
+                <br />
+                <div style="color: Purple;">
+                    @Html.Label("Select Site", new { style = "width:250px" })
+                </div>
+                <div class="editor-field">
+                    @Html.DropDownList("site", new SelectList(string.Empty, "Value", "Text"),new { style = "width:250px", @class = "dropdown1" })
+                </div>
+                <br />
+                <div style="color: Purple;">
+                    @Html.Label("Select Mission", new { style = "width:250px" })
+                </div>
+                <div class="editor-field">
+                    @Html.DropDownList("mission", new SelectList(string.Empty, "Value", "Text"),new { style = "width:250px", @class = "dropdown1" })
+                </div>
+                <br/>
+                <div style="color: Purple;">
+                    @Html.Label("Select Tâche", new { style = "width:250px" })
+                </div>
+                <div class="editor-field">
+                    @Html.DropDownList("tache", new SelectList(string.Empty, "Value", "Text"), new { style = "width:250px", @class = "dropdown1" })
+                </div>
+                <br />
+                <input id="Submit1" type="submit" value="submit" />
+            </div>
+
+
+
+        }
+
+    </div>
+    
+    @section scripts
+    {
+    <script src="~/scripts/jquery-1.10.2.js" type="text/javascript"></script>
+    <script src="~/scripts/jquery-1.10.2.min.js" type="text/javascript"></script>
+    <script type="text/javascript">
+    $(document).ready(function () {
+        //Dropdownlist Selectedchange event
+        $("#pole").change(function () {
+            $("#site").empty();
+            $("#mission").empty();
+            $("#tache").empty();
+
+            $.ajax({
+                type: 'POST',
+                url: '@Url.Action("GetSite")', // we are calling json method
+                dataType: 'json',
+                data: { id: $("#pole").val() },
+                success: function (site) {
+                    // site contains the JSON formatted list
+                    // of site passed from the controller
+                    $.each(site, function (i, site) {
+                        $("#site").append('<option value="' + site.Value + '">' + site.Text + '</option>');
+                    }); // here we are adding option for Site
+                },
+                error: function (ex) {
+                    alert('Failed to retrieve site.' + ex);
+                }
+            });
+            return false;
+        })
+    });
+    </script>
+    <script type="text/javascript">
+    $(document).ready(function () {
+        //Dropdownlist Selectedchange event
+        $("#site").change(function () {
+            $("#mission").empty();
+            $.ajax({
+                type: 'POST',
+                url: '@Url.Action("GetMission")',
+                dataType: 'json',
+                data: { id: $("#site").val() },
+                success: function (mission) {
+                    // site contains the JSON formatted list
+                    // of site passed from the controller
+                    $.each(mission, function (i, mission) {
+                        $("#mission").append('<option value="'
+      + mission.Value + '">'
+      + mission.Text + '</option>');
+                    });
+                },
+                error: function (ex) {
+                    alert('Failed to retrieve site.' + ex);
+                }
+            });
+            return false;
+        })
+    });
+    </script>     
+    <script type="text/javascript">
+    $(document).ready(function () {
+        //Dropdownlist Selectedchange event
+        $("#mission").change(function () {
+            $("#tache").empty();
+            $.ajax({
+                type: 'POST',
+                url: '@Url.Action("GetTache")',
+                dataType: 'json',
+                data: { id: $("#mission").val() },
+                success: function (tache) {
+                    // site contains the JSON formatted list
+                    // of site passed from the controller
+                    $.each(tache, function (i, tache) {
+                        $("#tache").append('<option value="'
+      + tache.Value + '">'
+      + tache.Text + '</option>');
+                    });
+                },
+                error: function (ex) {
+                    alert('Failed to retrieve site.' + ex);
+                }
+            });
+            return false;
+        })
+    });
+    </script>     
+    }
+    </body>
+</html>
+
+
